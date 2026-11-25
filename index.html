@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>54-й километр</title>
+  <meta name="description" content="Дачная игра к юбилею">
+  <meta property="og:title" content="54-й километр">
+  <meta property="og:image" content="assets/bg_platform.webp">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      -webkit-user-select: none
+    }
+
+    html,
+    body {
+      height: 100%;
+      background: #1e2a44;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      color: #111;
+      overflow: hidden
+    }
+
+    #stage {
+      position: relative;
+      margin: 0 auto;
+      height: 100dvh;
+      width: min(100vw, calc(100dvh*9/16));
+      overflow: hidden;
+      background: #1e2a44;
+      touch-action: manipulation
+    }
+
+    .screen {
+      position: absolute;
+      inset: 0;
+      display: none
+    }
+
+    .screen.on {
+      display: block
+    }
+
+    /* ---------- story cards ---------- */
+    #story {
+      background: #1e2a44
+    }
+
+    #story .blurbg {
+      position: absolute;
+      inset: -20px;
+      background-size: cover;
+      background-position: center;
+      filter: blur(14px) brightness(.45);
+      transition: background-image .3s
+    }
+
+    .brand {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      right: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #fff;
+      font-weight: 800;
+      font-size: 15px;
+      letter-spacing: .2px;
+      z-index: 3
+    }
+
+    .brand .km {
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .brand .km i {
+      display: inline-grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      background: #fff;
+      color: #1e2a44;
+      font-style: normal;
+      font-size: 12px;
+      font-weight: 900
+    }
+
+    .card {
+      position: absolute;
+      left: 50%;
+      top: 52%;
+      transform: translate(-50%, -50%);
+      width: 86%;
+      background: #fff;
+      border-radius: 34px;
+      padding: 22px 18px 18px;
+      text-align: center;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, .35);
+      z-index: 2
+    }
+
+    .card h2 {
+      font-size: 17px;
+      line-height: 1.3;
+      font-weight: 800;
+      margin: 0 4px 14px;
+      min-height: 66px;
+      display: flex;
+      align-items: center;
+      justify-content: center
+    }
+
+    .card .pic {
+      width: 100%;
+      aspect-ratio: 1/1.05;
+      border-radius: 22px;
+      background-size: cover;
+      background-position: center bottom;
+      margin-bottom: 16px;
+      position: relative;
+      overflow: hidden
+    }
+
+    .btn {
+      display: block;
+      width: 100%;
+      border: 0;
+      border-radius: 999px;
+      background: #e8453c;
+      color: #fff;
+      font-weight: 800;
+      font-size: 19px;
+      padding: 16px;
+      cursor: pointer;
+      box-shadow: inset 0 -4px 0 rgba(0, 0, 0, .18);
+      transform: rotate(-1deg)
+    }
+
+    .btn:active {
+      transform: rotate(-1deg) scale(.97)
+    }
+
+    .btn.ghost {
+      background: #eef1f6;
+      color: #1e2a44;
+      margin-top: 10px;
+      transform: rotate(1deg)
+    }
+
+    .dots {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 12px
+    }
+
+    .dots span {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #d5dae3
+    }
+
+    .dots span.on {
+      background: #e8453c
+    }
+
+    .rules {
+      display: grid;
+      grid-template-columns: 64px 1fr;
+      gap: 10px 12px;
+      align-items: center;
+      text-align: left;
+      font-size: 15px;
+      font-weight: 600;
+      line-height: 1.3;
+      padding: 4px 6px 18px
+    }
+
+    .rules img {
+      width: 64px;
+      height: 56px;
+      object-fit: contain
+    }
+
+    /* ---------- game ---------- */
+    #game {
+      background-size: cover;
+      background-position: center top
+    }
+
+    .hud {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      right: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      z-index: 20;
+      pointer-events: none
+    }
+
+    .timer {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: #e8453c;
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      font-size: 24px;
+      line-height: .9;
+      border: 3px solid #111;
+      box-shadow: 0 3px 0 #111;
+      text-align: center
+    }
+
+    .timer small {
+      display: block;
+      font-size: 11px;
+      font-weight: 800
+    }
+
+    .lives {
+      display: flex;
+      gap: 2px;
+      background: #fff;
+      border: 3px solid #111;
+      border-radius: 18px;
+      padding: 4px 8px;
+      box-shadow: 0 3px 0 #111
+    }
+
+    .lives img {
+      width: 24px;
+      height: 32px;
+      object-fit: contain;
+      transition: opacity .3s
+    }
+
+    .score {
+      background: #fff;
+      border: 3px solid #111;
+      border-radius: 18px;
+      padding: 6px 12px;
+      font-weight: 900;
+      font-size: 15px;
+      box-shadow: 0 3px 0 #111;
+      text-align: center
+    }
+
+    .score small {
+      display: block;
+      font-size: 10px;
+      font-weight: 700;
+      color: #555
+    }
+
+    #scene {
+      position: absolute;
+      left: 50%;
+      bottom: 0;
+      height: 100%;
+      aspect-ratio: 768/1376;
+      transform: translateX(-50%)
+    }
+
+    #scene>.layer {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none
+    }
+
+    #tableL {
+      z-index: 6
+    }
+
+    .friend {
+      position: absolute;
+      bottom: 17%;
+      z-index: 5;
+      transition: transform .2s
+    }
+
+    .friend img {
+      width: 100%;
+      display: block
+    }
+
+    #fA {
+      left: 8%;
+      width: 40%;
+      bottom: 19%
+    }
+
+    #fB {
+      right: 10%;
+      width: 40%
+    }
+
+    .friend.shake {
+      animation: shake .4s
+    }
+
+    @keyframes shake {
+      25% {
+        transform: translateX(-5px)
+      }
+
+      75% {
+        transform: translateX(5px)
+      }
+    }
+
+    .bubble {
+      position: absolute;
+      bottom: 100%;
+      margin-bottom: -6px;
+      background: #fff;
+      border: 3px solid #111;
+      border-radius: 18px;
+      padding: 8px 11px;
+      font-size: 13.5px;
+      font-weight: 800;
+      line-height: 1.2;
+      width: max-content;
+      max-width: 190px;
+      z-index: 30;
+      box-shadow: 0 3px 0 #111;
+      opacity: 0;
+      transform: scale(.6);
+      transform-origin: bottom center;
+      transition: opacity .15s, transform .2s cubic-bezier(.3, 1.6, .6, 1);
+      pointer-events: none
+    }
+
+    .bubble.on {
+      opacity: 1;
+      transform: scale(1);
+      pointer-events: auto;
+      cursor: pointer
+    }
+
+    .bubble:after {
+      content: "";
+      position: absolute;
+      bottom: -11px;
+      width: 16px;
+      height: 16px;
+      background: #fff;
+      border-right: 3px solid #111;
+      border-bottom: 3px solid #111;
+      transform: rotate(45deg)
+    }
+
+    #fA .bubble {
+      left: 22%
+    }
+
+    #fA .bubble:after {
+      left: 24px
+    }
+
+    #fB .bubble {
+      right: 20%
+    }
+
+    #fB .bubble:after {
+      right: 24px
+    }
+
+    .bubble .hint {
+      display: block;
+      font-size: 10px;
+      color: #e8453c;
+      margin-top: 3px
+    }
+
+    .item {
+      position: absolute;
+      z-index: 8;
+      cursor: pointer;
+      touch-action: manipulation
+    }
+
+    .item img {
+      width: 100%;
+      display: block;
+      pointer-events: none;
+      filter: drop-shadow(0 3px 0 rgba(0, 0, 0, .15))
+    }
+
+    .item.pop img {
+      animation: pop .3s
+    }
+
+    @keyframes pop {
+      40% {
+        transform: scale(1.18) rotate(-4deg)
+      }
+    }
+
+    .item.empty:before {
+      content: "";
+      position: absolute;
+      inset: -6px;
+      border-radius: 50%;
+      border: 3px dashed #e8453c;
+      animation: pulse .7s infinite alternate
+    }
+
+    @keyframes pulse {
+      to {
+        opacity: .25;
+        transform: scale(1.08)
+      }
+    }
+
+    #gA {
+      left: 31%;
+      bottom: 18%;
+      width: 10%
+    }
+
+    #pA {
+      left: 41%;
+      bottom: 16%;
+      width: 21%
+    }
+
+    #gB {
+      right: 13%;
+      bottom: 9.5%;
+      width: 11%
+    }
+
+    #pB {
+      right: 26%;
+      bottom: 6%;
+      width: 23%
+    }
+
+    #egor {
+      position: absolute;
+      left: 15%;
+      bottom: 20.5%;
+      width: 8%;
+      z-index: 7;
+      cursor: pointer
+    }
+
+    #egor img {
+      width: 100%;
+      display: block;
+      pointer-events: none
+    }
+
+    #egor span {
+      position: absolute;
+      left: 50%;
+      top: -30%;
+      transform: translateX(-50%) rotate(-4deg);
+      background: #fff8d6;
+      border: 2px solid #111;
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 2px 5px;
+      white-space: nowrap;
+      box-shadow: 0 2px 0 #111
+    }
+
+    #host {
+      position: absolute;
+      left: -24%;
+      bottom: -11%;
+      width: 88%;
+      z-index: 12;
+      pointer-events: none;
+      transform-origin: 20% 100%;
+      transition: transform .15s
+    }
+
+    #host.reach {
+      transform: rotate(-3deg) translateY(-6px)
+    }
+
+    #crate {
+      position: absolute;
+      right: 2%;
+      bottom: -2%;
+      width: 21%;
+      z-index: 11;
+      pointer-events: none
+    }
+
+    .float {
+      position: absolute;
+      z-index: 60;
+      font-weight: 900;
+      font-size: 20px;
+      color: #fff;
+      -webkit-text-stroke: 1px #111;
+      text-shadow: 0 2px 0 #111;
+      pointer-events: none;
+      animation: up .8s forwards
+    }
+
+    @keyframes up {
+      to {
+        transform: translateY(-50px);
+        opacity: 0
+      }
+    }
+
+    .toast {
+      position: absolute;
+      left: 50%;
+      top: 13%;
+      transform: translateX(-50%);
+      background: #111;
+      color: #fff;
+      font-weight: 800;
+      font-size: 14px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      z-index: 40;
+      opacity: 0;
+      transition: opacity .2s;
+      white-space: nowrap
+    }
+
+    .toast.on {
+      opacity: 1
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(20, 28, 48, .72);
+      z-index: 50;
+      display: none
+    }
+
+    .overlay.on {
+      display: block
+    }
+
+    .result .big {
+      font-size: 24px;
+      font-weight: 900;
+      margin: 2px 0 6px
+    }
+
+    .result .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 6px;
+      margin: 14px 0 18px
+    }
+
+    .result .stats div {
+      background: #f3f5f9;
+      border-radius: 16px;
+      padding: 10px 4px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #555
+    }
+
+    .result .stats b {
+      display: block;
+      font-size: 22px;
+      color: #111
+    }
+
+    .result p {
+      font-size: 14.5px;
+      font-weight: 600;
+      line-height: 1.35;
+      color: #333
+    }
+
+    .count {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      z-index: 60;
+      font-size: 96px;
+      font-weight: 900;
+      color: #fff;
+      -webkit-text-stroke: 3px #111;
+      text-shadow: 0 6px 0 #111;
+      pointer-events: none
+    }
+  </style>
+</head>
+
+<body>
+  <div id="stage">
+
+    <!-- STORY -->
+    <section class="screen on" id="story">
+      <div class="blurbg" id="storyBg"></div>
+      <div class="brand"><span class="km"><i>54</i>54-й километр</span><span>Юбилейный выпуск</span></div>
+      <div class="card">
+        <h2 id="storyText"></h2>
+        <div class="pic" id="storyPic"></div>
+        <div class="rules" id="rules" style="display:none">
+          <img src="assets/light2.webp" alt="">
+          <div>Стакан пустеет? Тапни по нему и налей</div>
+          <img src="assets/pie1.webp" alt="">
+          <div>Тарелка пустая? Тапни и подложи закуски</div>
+          <img src="assets/a2.webp" alt="" style="object-position:top">
+          <div>Кто долго ждёт, тот обижается. Три обиды, и вечер испорчен</div>
+        </div>
+        <button class="btn" id="storyBtn">Дальше</button>
+        <div class="dots" id="dots"></div>
+      </div>
+    </section>
+
+    <!-- GAME -->
+    <section class="screen" id="game">
+      <div class="hud">
+        <div class="lives" id="lives"></div>
+        <div class="timer" id="timer">
+          <div>60<small>сек</small></div>
+        </div>
+        <div class="score" id="score">0<small>налито</small></div>
+      </div>
+
+      <div id="scene">
+        <img class="layer" src="assets/bg_room.webp" alt="" style="z-index:0">
+        <img class="layer" id="tableL" src="assets/table.webp" alt="">
+        <div class="friend" id="fA">
+          <div class="bubble" id="bA"></div><img id="imgA" src="assets/a0.webp" alt="">
+        </div>
+        <div class="friend" id="fB">
+          <div class="bubble" id="bB"></div><img id="imgB" src="assets/b0.webp" alt="">
+        </div>
+
+        <div class="item" id="gA"><img src="assets/dark2.webp" alt=""></div>
+        <div class="item" id="pA"><img src="assets/pie1.webp" alt=""></div>
+        <div class="item" id="gB"><img src="assets/light2.webp" alt=""></div>
+        <div class="item" id="pB"><img src="assets/chips1.webp" alt=""></div>
+
+        <div id="egor"><span>Егору</span><img src="assets/cider2.webp" alt=""></div>
+        <img id="crate" src="assets/crate.webp" alt="">
+        <img id="host" src="assets/host.webp" alt="">
+      </div>
+      <div class="toast" id="toast"></div>
+
+      <div class="overlay" id="over">
+        <div class="card result">
+          <div style="font-size:13px;font-weight:800;color:#e8453c;letter-spacing:.5px" id="resKicker">ВЕЧЕР ОКОНЧЕН
+          </div>
+          <div class="big" id="resTitle">Хозяин 54-го километра</div>
+          <p id="resText"></p>
+          <div class="stats">
+            <div><b id="sDrinks">0</b>налито</div>
+            <div><b id="sFood">0</b>подложено</div>
+            <div><b id="sTalk">0</b>поддакнул</div>
+          </div>
+          <button class="btn" id="congratsBtn">Открыть поздравление</button>
+          <button class="btn ghost" id="againBtn">Ещё раз</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONGRATS -->
+    <section class="screen" id="congrats">
+      <div class="blurbg"
+        style="position:absolute;inset:-20px;background:url(assets/bg_platform.webp) center/cover;filter:blur(14px) brightness(.45)">
+      </div>
+      <div class="brand"><span class="km"><i>54</i>54-й километр</span><span></span></div>
+      <div class="card">
+        <h2>Дачное поздравление с юбилеем!</h2>
+        <div class="pic" style="background-image:url(assets/bg_shop.webp)"></div>
+        <p style="font-size:18px;font-weight:800;line-height:1.35;margin-bottom:16px">Пусть всё будет как по маслу!</p>
+        <button class="btn" id="toStart">Сыграть снова</button>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const $ = id => document.getElementById(id);
+    const IMG = {
+      a: ['assets/a0.webp', 'assets/a1.webp', 'assets/a2.webp'], b: ['assets/b0.webp', 'assets/b1.webp', 'assets/b2.webp'],
+      light: ['assets/light0.webp', 'assets/light1.webp', 'assets/light2.webp'], dark: ['assets/dark0.webp', 'assets/dark1.webp', 'assets/dark2.webp'], cider: ['assets/cider0.webp', 'assets/cider1.webp', 'assets/cider2.webp'],
+      pie: ['assets/pie0.webp', 'assets/pie1.webp'], cheese: ['assets/cheese0.webp', 'assets/cheese1.webp'], chips: ['assets/chips0.webp', 'assets/chips1.webp']
+    };
+    // preload
+    Object.values(IMG).flat().forEach(s => { const i = new Image(); i.src = s });
+
+    /* ---------------- STORY ---------------- */
+    const STORY = [
+      { t: 'Осень, солнце, прохладно. Сошли с электрички на 54-м километре. Мы на даче!', img: 'assets/bg_platform.webp' },
+      { t: 'Ларёк у станции не подвёл. Взяли светлое, тёмное, вишнёвый сидр, пироги, сыр-косичку и чипсы', img: 'assets/bg_shop.webp' },
+      { t: 'Сели, разговорились. Только пиво и закуски кончаются быстрее, чем темы для разговора', img: 'assets/bg_room.webp' },
+      { t: 'Ты хозяин. У друзей всегда должно быть налито и положено', rules: true, img: 'assets/bg_room.webp' }
+    ];
+    let si = 0;
+    function renderStory() {
+      const s = STORY[si];
+      $('storyText').textContent = s.t;
+      $('storyBg').style.backgroundImage = `url(${s.img})`;
+      $('storyPic').style.display = s.rules ? 'none' : 'block';
+      $('rules').style.display = s.rules ? 'grid' : 'none';
+      if (!s.rules) $('storyPic').style.backgroundImage = `url(${s.img})`;
+      $('storyBtn').textContent = s.rules ? 'Всё ясно, наливаю!' : 'Дальше';
+      $('dots').innerHTML = STORY.map((_, i) => `<span class="${i === si ? 'on' : ''}"></span>`).join('');
+    }
+    $('storyBtn').onclick = () => { if (si < STORY.length - 1) { si++; renderStory() } else startGame(); };
+    renderStory();
+
+    function show(id) { document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === id)) }
+
+    /* ---------------- GAME ---------------- */
+    // фирменные фразы персонажей + общие
+    const OWN = {
+      a: ["Петро Петровский петух", "Я! Моё мнение"],
+      b: ["Сетку, ну... рабица", "Ребят, АРМО, АРМО!"]
+    };
+    const SHARED = ["Ну что, в Героев?", "Где Егор?", "Враг не пройдёт!", "Городской центр!", "Пушка!", "Егор на электричку опоздал, следующая в 12 ночи"];
+    function pickPhrase(key) {
+      if (key === 'a' && Math.random() < .12) return "Ребят, АРМО, АРМО!"; // иногда и А подхватывает
+      return Math.random() < .55 ? OWN[key][Math.floor(Math.random() * OWN[key].length)]
+        : SHARED[Math.floor(Math.random() * SHARED.length)];
+    }
+    const FOODS = ['pie', 'cheese', 'chips'];
+    const DUR = 60, MAX_OFF = 3, PATIENCE = 3.2;
+    let st, raf, last;
+
+    function mkFriend(key, drink, el) {
+      return {
+        key, drink, food: FOODS[Math.floor(Math.random() * 3)], d: 100, f: 100,
+        dr: 0, fr: 0, emptyT: 0, offended: false, talkUntil: 0, el,
+        img: $('img' + el), bub: $('b' + el), glass: $('g' + el), plate: $('p' + el)
+      };
+    }
+    function startGame() {
+      show('game'); $('over').classList.remove('on');
+      st = {
+        t: 0, off: 0, drinks: 0, food: 0, talk: 0, nextTalk: 2.5, lastPhrase: -1, over: false,
+        fr: [mkFriend('a', 'dark', 'A'), mkFriend('b', 'light', 'B')]
+      };
+      // personalities: A пьёт быстрее, B ест быстрее
+      st.fr[0].dr = 13; st.fr[0].fr = 8;
+      st.fr[1].dr = 9; st.fr[1].fr = 12;
+      st.fr[1].d = 70; st.fr[0].f = 80;
+      renderLives(); updScore();
+      countdown(3, () => { last = performance.now(); raf = requestAnimationFrame(loop) });
+    }
+    function countdown(n, cb) {
+      const c = document.createElement('div'); c.className = 'count'; $('game').appendChild(c);
+      const step = () => {
+        if (n === 0) { c.textContent = 'Погнали!'; setTimeout(() => { c.remove(); cb() }, 500); return }
+        c.textContent = n--; setTimeout(step, 650)
+      }; step();
+    }
+    function renderLives() {
+      $('lives').innerHTML = Array.from({ length: MAX_OFF }, (_, i) => `<img src="${i < MAX_OFF - st.off ? IMG.light[2] : IMG.light[0]}" style="opacity:${i < MAX_OFF - st.off ? 1 : .45}">`).join('');
+    }
+    function updScore() { $('score').innerHTML = `${st.drinks + st.food}<small>налито</small>` }
+
+    function loop(now) {
+      const dt = Math.min(.05, (now - last) / 1000); last = now;
+      st.t += dt;
+      const speed = 1 + st.t / DUR * 1.1; // к концу почти вдвое быстрее
+      const left = Math.max(0, Math.ceil(DUR - st.t));
+      $('timer').innerHTML = `<div>${left}<small>сек</small></div>`;
+
+      for (const f of st.fr) {
+        f.d = Math.max(0, f.d - f.dr * speed * dt * (0.8 + Math.random() * 0.4));
+        f.f = Math.max(0, f.f - f.fr * speed * dt * (0.8 + Math.random() * 0.4));
+        const empty = f.d <= 0 || f.f <= 0;
+        if (empty) {
+          f.emptyT += dt;
+          if (f.emptyT > PATIENCE && !f.offended) {
+            f.offended = true; st.off++; renderLives();
+            $('f' + f.el).classList.add('shake'); setTimeout(() => $('f' + f.el).classList.remove('shake'), 400);
+            toast(f.key === 'a' ? 'Обиделся! Налей ему скорее' : 'Надулся. Где закуска?');
+            if (st.off >= MAX_OFF) return endGame(false);
+          }
+        } else { f.emptyT = 0; f.offended = false; }
+        // sprites
+        const mood = f.offended ? 2 : (empty ? 1 : (st.t < f.talkUntil ? 0 : 0));
+        const src = IMG[f.key][mood]; if (f.img.getAttribute('src') !== src) f.img.src = src;
+        const gl = IMG[f.drink][f.d > 55 ? 2 : f.d > 0 ? 1 : 0];
+        const gi = f.glass.firstElementChild; if (gi.getAttribute('src') !== gl) gi.src = gl;
+        const pl = IMG[f.food][f.f > 0 ? 1 : 0];
+        const pi = f.plate.firstElementChild; if (pi.getAttribute('src') !== pl) pi.src = pl;
+        f.glass.classList.toggle('empty', f.d <= 0);
+        f.plate.classList.toggle('empty', f.f <= 0);
+        if (st.t > f.talkUntil && f.bub.classList.contains('on')) f.bub.classList.remove('on');
+      }
+      // реплики
+      if (st.t > st.nextTalk) {
+        const f = st.fr[Math.random() < .5 ? 0 : 1];
+        if (!f.offended) {
+          let p, tries = 0; do { p = pickPhrase(f.key) } while (p === st.lastPhrase && tries++ < 5);
+          st.lastPhrase = p;
+          f.bub.innerHTML = p + '<span class="hint">тапни, чтобы поддакнуть</span>';
+          f.bub.classList.add('on'); f.bub.dataset.done = ''; f.talkUntil = st.t + 2.8;
+        }
+        st.nextTalk = st.t + 3 + Math.random() * 2.5;
+      }
+      if (st.t >= DUR) return endGame(true);
+      raf = requestAnimationFrame(loop);
+    }
+
+    function floatAt(el, txt) {
+      const r = el.getBoundingClientRect(), g = $('stage').getBoundingClientRect();
+      const d = document.createElement('div'); d.className = 'float'; d.textContent = txt;
+      d.style.left = (r.left - g.left + r.width / 2 - 14) + 'px'; d.style.top = (r.top - g.top - 10) + 'px';
+      $('stage').appendChild(d); setTimeout(() => d.remove(), 800);
+    }
+    function toast(t) { const e = $('toast'); e.textContent = t; e.classList.add('on'); clearTimeout(e._t); e._t = setTimeout(() => e.classList.remove('on'), 1400) }
+    function reach() { $('host').classList.add('reach'); setTimeout(() => $('host').classList.remove('reach'), 150); if (navigator.vibrate) navigator.vibrate(12) }
+
+    ['A', 'B'].forEach((k, idx) => {
+      $('g' + k).addEventListener('pointerdown', e => {
+        e.preventDefault(); if (!st || st.over) return; const f = st.fr[idx];
+        if (f.d > 90) return; f.d = 100; st.drinks++; updScore(); reach(); pop($('g' + k)); floatAt($('g' + k), '+1');
+      });
+      $('p' + k).addEventListener('pointerdown', e => {
+        e.preventDefault(); if (!st || st.over) return; const f = st.fr[idx];
+        if (f.f > 90) return; f.f = 100; f.food = FOODS[Math.floor(Math.random() * 3)]; st.food++; updScore(); reach(); pop($('p' + k)); floatAt($('p' + k), '+1');
+      });
+      $('b' + k).addEventListener('pointerdown', e => {
+        e.preventDefault(); if (!st || st.over) return; const b = $('b' + k);
+        if (b.dataset.done) return; b.dataset.done = '1'; st.talk++; b.innerHTML = 'Ага, точно!'; floatAt(b, '+1 уважение');
+      });
+    });
+    $('egor').addEventListener('pointerdown', e => {
+      e.preventDefault(); if (!st || st.over) return;
+      const t = ["Не трогай, это сидр Егора!", "Егор уже едет. Наверное", "Егор будет через 5 минут (нет)"];
+      toast(t[Math.floor(Math.random() * t.length)]);
+    });
+    function pop(el) { el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop') }
+
+    function endGame(win) {
+      st.over = true; cancelAnimationFrame(raf);
+      st.fr.forEach(f => f.bub.classList.remove('on'));
+      const total = st.drinks + st.food + st.talk;
+      let title, text;
+      if (!win) { title = 'Вечер не задался'; text = 'Друзья обиделись и ушли играть в Героев без тебя. Егор так и не приехал.'; $('resKicker').textContent = 'ТРИ ОБИДЫ'; }
+      else {
+        $('resKicker').textContent = 'ВЕЧЕР УДАЛСЯ';
+        if (total < 22) { title = 'Хозяин-стажёр'; text = 'Пиво было. Закуска тоже была, иногда. Друзья говорят «нормально посидели». Егор так и не доехал, и его сидр выдохся.'; }
+        else if (total < 34) { title = 'Душа компании'; text = 'Стаканы полные, тарелки тоже. Разговор про рабицу не утихает. Егор всё ещё в электричке.'; }
+        else { title = 'Хозяин 54-го километра'; text = 'Легенда васкеловских лабазов. Ни одного пустого стакана! А сидр таки дождался Егора.'; }
+      }
+      $('resTitle').textContent = title; $('resText').textContent = text;
+      $('sDrinks').textContent = st.drinks; $('sFood').textContent = st.food; $('sTalk').textContent = st.talk;
+      setTimeout(() => $('over').classList.add('on'), 400);
+    }
+    $('againBtn').onclick = startGame;
+    $('congratsBtn').onclick = () => show('congrats');
+    $('toStart').onclick = () => { si = 0; renderStory(); show('story') };
+
+  </script>
+</body>
+
+</html>
