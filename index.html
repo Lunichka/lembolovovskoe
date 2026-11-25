@@ -5,7 +5,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <title>54-й километр</title>
-  <meta name="description" content="Дачная игра к юбилею">
+  <meta name="description" content="Дачная игра для ЮБИЛЯРА">
   <meta property="og:title" content="54-й километр">
   <meta property="og:image" content="assets/bg_platform.webp">
   <style>
@@ -28,6 +28,7 @@
     }
 
     #stage {
+      container-type: size;
       position: relative;
       margin: 0 auto;
       height: 100dvh;
@@ -98,7 +99,7 @@
     .card {
       position: absolute;
       left: 50%;
-      top: 52%;
+      top: calc(50% + 22px);
       transform: translate(-50%, -50%);
       width: 86%;
       background: #fff;
@@ -114,19 +115,19 @@
       line-height: 1.3;
       font-weight: 800;
       margin: 0 4px 14px;
-      min-height: 66px;
+      min-height: min(66px, 8dvh);
       display: flex;
       align-items: center;
       justify-content: center
     }
 
     .card .pic {
-      width: 100%;
-      aspect-ratio: 1/1.05;
+      width: min(100%, calc(100cqh - 250px));
+      margin: 0 auto 16px;
+      aspect-ratio: 1/1;
       border-radius: 22px;
       background-size: cover;
-      background-position: center bottom;
-      margin-bottom: 16px;
+      background-position: center;
       position: relative;
       overflow: hidden
     }
@@ -274,7 +275,7 @@
       bottom: 0;
       height: 100%;
       aspect-ratio: 768/1376;
-      transform: translateX(-50%)
+      margin-left: calc(-100dvh*768/1376/2)
     }
 
     #scene>.layer {
@@ -308,8 +309,8 @@
     }
 
     #fB {
-      right: 10%;
-      width: 40%
+      right: 9%;
+      width: 42%
     }
 
     .friend.shake {
@@ -328,8 +329,6 @@
 
     .bubble {
       position: absolute;
-      bottom: 100%;
-      margin-bottom: -6px;
       background: #fff;
       border: 3px solid #111;
       border-radius: 18px;
@@ -338,7 +337,7 @@
       font-weight: 800;
       line-height: 1.2;
       width: max-content;
-      max-width: 190px;
+      max-width: 230px;
       z-index: 30;
       box-shadow: 0 3px 0 #111;
       opacity: 0;
@@ -367,19 +366,21 @@
       transform: rotate(45deg)
     }
 
-    #fA .bubble {
-      left: 22%
+    #bA {
+      left: 15%;
+      bottom: 41.5%
     }
 
-    #fA .bubble:after {
+    #bA:after {
       left: 24px
     }
 
-    #fB .bubble {
-      right: 20%
+    #bB {
+      right: 12%;
+      bottom: 42%
     }
 
-    #fB .bubble:after {
+    #bB:after {
       right: 24px
     }
 
@@ -560,6 +561,12 @@
       display: block
     }
 
+    .result {
+      top: 50%;
+      max-height: calc(100% - 16px);
+      overflow-y: auto
+    }
+
     .result .big {
       font-size: 24px;
       font-weight: 900;
@@ -570,7 +577,35 @@
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
       gap: 6px;
-      margin: 14px 0 18px
+      margin: min(14px, 1.5dvh) 0 min(18px, 2dvh)
+    }
+
+    @media (max-height:600px) {
+      .card {
+        padding: 16px 16px 14px
+      }
+
+      .card h2 {
+        font-size: 15px;
+        margin-bottom: 10px
+      }
+
+      .card .pic {
+        margin-bottom: 12px
+      }
+
+      .result .btn {
+        padding: 11px;
+        font-size: 16px
+      }
+
+      .result .stats b {
+        font-size: 18px
+      }
+
+      .result .stats div {
+        padding: 6px 4px
+      }
     }
 
     .result .stats div {
@@ -601,34 +636,209 @@
       display: grid;
       place-items: center;
       z-index: 60;
-      font-size: 96px;
-      font-weight: 900;
-      color: #fff;
-      -webkit-text-stroke: 3px #111;
-      text-shadow: 0 6px 0 #111;
       pointer-events: none
+    }
+
+    .count span {
+      background: #fff;
+      color: #e8453c;
+      border: 4px solid #111;
+      border-radius: 28px;
+      padding: 6px 30px;
+      box-shadow: 0 6px 0 #111;
+      font-size: 64px;
+      font-weight: 900;
+      line-height: 1.1;
+      animation: cpop .3s
+    }
+
+    @keyframes cpop {
+      from {
+        transform: scale(.6)
+      }
+    }
+
+    #desk,
+    .side {
+      display: none
+    }
+
+    @media (min-aspect-ratio:4/5) and (min-width:700px) {
+      body {
+        background: #141c30
+      }
+
+      #desk {
+        display: block;
+        position: fixed;
+        inset: -30px;
+        background: url(assets/bg_room.webp) center/cover;
+        filter: blur(18px) brightness(.35) saturate(1.2)
+      }
+
+      #stage {
+        --h: min(94dvh, 920px);
+        height: var(--h);
+        width: min(var(--h), calc(100vw - 32px));
+        margin-top: calc((100dvh - var(--h))/2);
+        border-radius: 32px;
+        box-shadow: 0 30px 80px rgba(0, 0, 0, .55), 0 0 0 4px #111
+      }
+
+      #scene {
+        height: auto;
+        width: 100%;
+        left: 0;
+        margin-left: 0
+      }
+
+      .card {
+        max-width: 440px
+      }
+
+      .side {
+        display: block;
+        position: fixed;
+        top: 50%;
+        transform: translateY(-50%);
+        width: calc((100vw - min(94dvh, 920px))/2 - 70px);
+        max-width: 300px;
+        color: #fff
+      }
+
+      .side.l {
+        left: max(32px, calc(50vw - min(94dvh, 920px)/2 - 340px))
+      }
+
+      .side.r {
+        right: max(32px, calc(50vw - min(94dvh, 920px)/2 - 340px))
+      }
+
+      .side h1 {
+        font-size: clamp(28px, 2.6vw, 44px);
+        line-height: 1.02;
+        font-weight: 900;
+        margin-bottom: 14px
+      }
+
+      .side p {
+        font-size: 16px;
+        line-height: 1.45;
+        font-weight: 600;
+        opacity: .85;
+        margin-bottom: 10px
+      }
+
+      .side .tag {
+        display: inline-block;
+        background: #e8453c;
+        border-radius: 999px;
+        padding: 6px 14px;
+        font-weight: 800;
+        font-size: 14px;
+        margin-bottom: 16px
+      }
+
+      .side .q {
+        background: #fff;
+        color: #111;
+        border: 3px solid #111;
+        border-radius: 18px;
+        padding: 10px 14px;
+        font-weight: 800;
+        font-size: 15px;
+        margin-bottom: 12px;
+        box-shadow: 0 3px 0 #111;
+        width: max-content;
+        max-width: 100%
+      }
+
+      .side .q:nth-child(odd) {
+        transform: rotate(-2deg)
+      }
+
+      .side .q:nth-child(even) {
+        transform: rotate(1.5deg);
+        margin-left: 24px
+      }
+    }
+
+    @media (min-aspect-ratio:4/5) and (min-width:700px) and (max-width:1500px) {
+      .side {
+        display: none
+      }
+    }
+
+    #snd {
+      position: absolute;
+      left: 12px;
+      top: 84px;
+      z-index: 45;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #fff;
+      border: 3px solid #111;
+      box-shadow: 0 3px 0 #111;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      padding: 0
+    }
+
+    #snd svg {
+      width: 20px;
+      height: 20px
+    }
+
+    #snd.off .w {
+      display: none
+    }
+
+    #snd:not(.off) .x {
+      display: none
     }
   </style>
 </head>
 
 <body>
+  <div id="desk"></div>
+  <aside class="side l">
+
+    <h1>54-й километр</h1>
+    <p>Осень, дача, друзья и ящик пива. Следи, чтобы у всех было налито и положено.</p>
+    <p>Играть можно мышкой: кликай по стаканам, тарелкам и облачкам.</p>
+  </aside>
+  <aside class="side r">
+    <div class="q">Сетку, ну... рабица</div>
+    <div class="q">Я! Моё мнение</div>
+    <div class="q">Где Егор?</div>
+    <div class="q">Ну что, в Героев?</div>
+  </aside>
   <div id="stage">
+    <button id="snd" aria-label="Звук"><svg viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.4"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 9h4l5-4v14l-5-4H4z" fill="#111" />
+        <path class="w" d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12" />
+        <path class="x" d="M17 9l5 6M22 9l-5 6" />
+      </svg></button>
 
     <!-- STORY -->
     <section class="screen on" id="story">
       <div class="blurbg" id="storyBg"></div>
-      <div class="brand"><span class="km"><i>54</i>54-й километр</span><span>Юбилейный выпуск</span></div>
+      <div class="brand"><span class="km"><i>54</i>54-й километр</span><span></span></div>
       <div class="card">
         <h2 id="storyText"></h2>
         <div class="pic" id="storyPic"></div>
         <div class="rules" id="rules" style="display:none">
           <img src="assets/light2.webp" alt="">
-          <div>Стакан пустеет? Тапни по нему и налей</div>
+          <div>Пустой стакан? Нажми, чтобы наполнить</div>
           <img src="assets/pie1.webp" alt="">
-          <div>Тарелка пустая? Тапни и подложи закуски</div>
+          <div>Закончились закуски? Нажми и подложи ещё</div>
           <img src="assets/a2.webp" alt="" style="object-position:top">
-          <div>Кто долго ждёт, тот обижается. Три обиды, и вечер испорчен</div>
+          <div>Кто долго ждёт, тот обижается. Три обиды — и вечер испорчен</div>
         </div>
+
         <button class="btn" id="storyBtn">Дальше</button>
         <div class="dots" id="dots"></div>
       </div>
@@ -647,12 +857,10 @@
       <div id="scene">
         <img class="layer" src="assets/bg_room.webp" alt="" style="z-index:0">
         <img class="layer" id="tableL" src="assets/table.webp" alt="">
-        <div class="friend" id="fA">
-          <div class="bubble" id="bA"></div><img id="imgA" src="assets/a0.webp" alt="">
-        </div>
-        <div class="friend" id="fB">
-          <div class="bubble" id="bB"></div><img id="imgB" src="assets/b0.webp" alt="">
-        </div>
+        <div class="bubble" id="bA"></div>
+        <div class="bubble" id="bB"></div>
+        <div class="friend" id="fA"><img id="imgA" src="assets/a0.webp" alt=""></div>
+        <div class="friend" id="fB"><img id="imgB" src="assets/b0.webp" alt=""></div>
 
         <div class="item" id="gA"><img src="assets/dark2.webp" alt=""></div>
         <div class="item" id="pA"><img src="assets/pie1.webp" alt=""></div>
@@ -670,6 +878,9 @@
           <div style="font-size:13px;font-weight:800;color:#e8453c;letter-spacing:.5px" id="resKicker">ВЕЧЕР ОКОНЧЕН
           </div>
           <div class="big" id="resTitle">Хозяин 54-го километра</div>
+          <div class="pic" id="resPic"
+            style="display:none;width:100%;aspect-ratio:auto;height:clamp(110px,calc(100cqh - 420px),300px);margin:8px auto 12px;background-image:url(assets/egor.webp);background-position:center 30%">
+          </div>
           <p id="resText"></p>
           <div class="stats">
             <div><b id="sDrinks">0</b>налито</div>
@@ -699,6 +910,41 @@
 
   <script>
     const $ = id => document.getElementById(id);
+    /* ---------- звуки (синтез, без файлов) ---------- */
+    let AC = null, muted = false;
+    try { muted = localStorage.getItem('km54mute') === '1' } catch (e) { }
+    function ac() { if (!AC) { try { AC = new (window.AudioContext || window.webkitAudioContext)() } catch (e) { } } if (AC && AC.state === 'suspended') AC.resume(); return AC; }
+    function tone(freq, dur, { type = 'sine', vol = .18, to = null, delay = 0 } = {}) {
+      const a = ac(); if (!a || muted) return; const t = a.currentTime + delay;
+      const o = a.createOscillator(), g = a.createGain(); o.type = type; o.frequency.setValueAtTime(freq, t);
+      if (to) o.frequency.exponentialRampToValueAtTime(to, t + dur);
+      g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.001, t + dur);
+      o.connect(g).connect(a.destination); o.start(t); o.stop(t + dur + .02);
+    }
+    function noise(dur, { vol = .12, freq = 900, q = 1.5, delay = 0 } = {}) {
+      const a = ac(); if (!a || muted) return; const t = a.currentTime + delay;
+      const b = a.createBuffer(1, a.sampleRate * dur, a.sampleRate), d = b.getChannelData(0);
+      for (let i = 0; i < d.length; i++)d[i] = (Math.random() * 2 - 1) * (1 - i / d.length);
+      const src = a.createBufferSource(), f = a.createBiquadFilter(), g = a.createGain();
+      src.buffer = b; f.type = 'bandpass'; f.frequency.value = freq; f.Q.value = q; g.gain.value = vol;
+      src.connect(f).connect(g).connect(a.destination); src.start(t);
+    }
+    const SFX = {
+      pour() { noise(.35, { freq: 1400, q: .8, vol: .16 }); for (let i = 0; i < 5; i++)tone(500 + Math.random() * 500, .06, { vol: .06, to: 900 + Math.random() * 400, delay: .04 + i * .06 }); },
+      plate() { tone(2100, .18, { vol: .07 }); tone(2750, .22, { vol: .05, delay: .02 }); noise(.08, { freq: 3000, vol: .05 }); },
+      talk() { tone(420, .12, { type: 'triangle', vol: .14, to: 760 }); tone(760, .1, { type: 'triangle', vol: .1, to: 980, delay: .09 }); },
+      bubble() { tone(880, .07, { vol: .05, to: 1200 }); },
+      offend() { tone(220, .35, { type: 'square', vol: .08, to: 110 }); },
+      beep() { tone(660, .14, { type: 'triangle', vol: .16 }); },
+      go() { tone(990, .3, { type: 'triangle', vol: .18 }); tone(1320, .3, { type: 'triangle', vol: .1, delay: .05 }); },
+      win() { [523, 659, 784, 1047].forEach((f, i) => tone(f, .28, { type: 'triangle', vol: .16, delay: i * .12 })); },
+      lose() { [392, 330, 262, 196].forEach((f, i) => tone(f, .32, { type: 'triangle', vol: .14, delay: i * .16 })); },
+      click() { tone(600, .05, { type: 'triangle', vol: .08 }); }
+    };
+    function sfx(n) { try { SFX[n]() } catch (e) { } }
+    function renderSnd() { $('snd').classList.toggle('off', muted); }
+    $('snd').addEventListener('click', e => { e.stopPropagation(); muted = !muted; try { localStorage.setItem('km54mute', muted ? '1' : '0') } catch (err) { } renderSnd(); if (!muted) { ac(); sfx('click') } });
+    renderSnd();
     const IMG = {
       a: ['assets/a0.webp', 'assets/a1.webp', 'assets/a2.webp'], b: ['assets/b0.webp', 'assets/b1.webp', 'assets/b2.webp'],
       light: ['assets/light0.webp', 'assets/light1.webp', 'assets/light2.webp'], dark: ['assets/dark0.webp', 'assets/dark1.webp', 'assets/dark2.webp'], cider: ['assets/cider0.webp', 'assets/cider1.webp', 'assets/cider2.webp'],
@@ -710,7 +956,7 @@
     /* ---------------- STORY ---------------- */
     const STORY = [
       { t: 'Осень, солнце, прохладно. Сошли с электрички на 54-м километре. Мы на даче!', img: 'assets/bg_platform.webp' },
-      { t: 'Ларёк у станции не подвёл. Взяли светлое, тёмное, вишнёвый сидр, пироги, сыр-косичку и чипсы', img: 'assets/bg_shop.webp' },
+      { t: 'Ларёк у станции не подвёл. Взяли светлое, тёмное и закуски', img: 'assets/bg_shop.webp' },
       { t: 'Сели, разговорились. Только пиво и закуски кончаются быстрее, чем темы для разговора', img: 'assets/bg_room.webp' },
       { t: 'Ты хозяин. У друзей всегда должно быть налито и положено', rules: true, img: 'assets/bg_room.webp' }
     ];
@@ -725,7 +971,7 @@
       $('storyBtn').textContent = s.rules ? 'Всё ясно, наливаю!' : 'Дальше';
       $('dots').innerHTML = STORY.map((_, i) => `<span class="${i === si ? 'on' : ''}"></span>`).join('');
     }
-    $('storyBtn').onclick = () => { if (si < STORY.length - 1) { si++; renderStory() } else startGame(); };
+    $('storyBtn').onclick = () => { ac(); sfx('click'); if (si < STORY.length - 1) { si++; renderStory() } else startGame(); };
     renderStory();
 
     function show(id) { document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === id)) }
@@ -734,7 +980,7 @@
     // фирменные фразы персонажей + общие
     const OWN = {
       a: ["Петро Петровский петух", "Я! Моё мнение"],
-      b: ["Сетку, ну... рабица", "Ребят, АРМО, АРМО!"]
+      b: ["Сетку, ну... рабица", "Ребят, АРМО, АРМО!", "Андрей, ты сегодня юбиляр...", "Спайдермен, я вызывал полицию, а получил въеб..."]
     };
     const SHARED = ["Ну что, в Героев?", "Где Егор?", "Враг не пройдёт!", "Городской центр!", "Пушка!", "Егор на электричку опоздал, следующая в 12 ночи"];
     function pickPhrase(key) {
@@ -769,8 +1015,8 @@
     function countdown(n, cb) {
       const c = document.createElement('div'); c.className = 'count'; $('game').appendChild(c);
       const step = () => {
-        if (n === 0) { c.textContent = 'Погнали!'; setTimeout(() => { c.remove(); cb() }, 500); return }
-        c.textContent = n--; setTimeout(step, 650)
+        if (n === 0) { c.innerHTML = '<span>Погнали!</span>'; sfx('go'); setTimeout(() => { c.remove(); cb() }, 500); return }
+        c.innerHTML = '<span>' + (n--) + '</span>'; sfx('beep'); setTimeout(step, 650)
       }; step();
     }
     function renderLives() {
@@ -792,7 +1038,7 @@
         if (empty) {
           f.emptyT += dt;
           if (f.emptyT > PATIENCE && !f.offended) {
-            f.offended = true; st.off++; renderLives();
+            f.offended = true; st.off++; renderLives(); sfx('offend');
             $('f' + f.el).classList.add('shake'); setTimeout(() => $('f' + f.el).classList.remove('shake'), 400);
             toast(f.key === 'a' ? 'Обиделся! Налей ему скорее' : 'Надулся. Где закуска?');
             if (st.off >= MAX_OFF) return endGame(false);
@@ -815,8 +1061,8 @@
         if (!f.offended) {
           let p, tries = 0; do { p = pickPhrase(f.key) } while (p === st.lastPhrase && tries++ < 5);
           st.lastPhrase = p;
-          f.bub.innerHTML = p + '<span class="hint">тапни, чтобы поддакнуть</span>';
-          f.bub.classList.add('on'); f.bub.dataset.done = ''; f.talkUntil = st.t + 2.8;
+          f.bub.innerHTML = p + '<span class="hint">нажми, чтобы поддакнуть</span>';
+          f.bub.classList.add('on'); sfx('bubble'); f.bub.dataset.done = ''; f.bub.dataset.p = p; f.talkUntil = st.t + 2.8;
         }
         st.nextTalk = st.t + 3 + Math.random() * 2.5;
       }
@@ -836,15 +1082,15 @@
     ['A', 'B'].forEach((k, idx) => {
       $('g' + k).addEventListener('pointerdown', e => {
         e.preventDefault(); if (!st || st.over) return; const f = st.fr[idx];
-        if (f.d > 90) return; f.d = 100; st.drinks++; updScore(); reach(); pop($('g' + k)); floatAt($('g' + k), '+1');
+        if (f.d > 90) return; f.d = 100; st.drinks++; sfx('pour'); updScore(); reach(); pop($('g' + k)); floatAt($('g' + k), '+1');
       });
       $('p' + k).addEventListener('pointerdown', e => {
         e.preventDefault(); if (!st || st.over) return; const f = st.fr[idx];
-        if (f.f > 90) return; f.f = 100; f.food = FOODS[Math.floor(Math.random() * 3)]; st.food++; updScore(); reach(); pop($('p' + k)); floatAt($('p' + k), '+1');
+        if (f.f > 90) return; f.f = 100; f.food = FOODS[Math.floor(Math.random() * 3)]; st.food++; sfx('plate'); updScore(); reach(); pop($('p' + k)); floatAt($('p' + k), '+1');
       });
       $('b' + k).addEventListener('pointerdown', e => {
         e.preventDefault(); if (!st || st.over) return; const b = $('b' + k);
-        if (b.dataset.done) return; b.dataset.done = '1'; st.talk++; b.innerHTML = 'Ага, точно!'; floatAt(b, '+1 уважение');
+        if (b.dataset.done) return; b.dataset.done = '1'; st.talk++; sfx('talk'); const said = b.dataset.p || ''; b.innerHTML = (said === 'Городской центр!' || said === 'Пушка!') && Math.random() < .75 ? 'Шахта!' : 'Хаха!'; floatAt(b, 'увожение');
       });
     });
     $('egor').addEventListener('pointerdown', e => {
@@ -855,6 +1101,7 @@
     function pop(el) { el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop') }
 
     function endGame(win) {
+      sfx(win ? 'win' : 'lose');
       st.over = true; cancelAnimationFrame(raf);
       st.fr.forEach(f => f.bub.classList.remove('on'));
       const total = st.drinks + st.food + st.talk;
@@ -862,10 +1109,11 @@
       if (!win) { title = 'Вечер не задался'; text = 'Друзья обиделись и ушли играть в Героев без тебя. Егор так и не приехал.'; $('resKicker').textContent = 'ТРИ ОБИДЫ'; }
       else {
         $('resKicker').textContent = 'ВЕЧЕР УДАЛСЯ';
-        if (total < 22) { title = 'Хозяин-стажёр'; text = 'Пиво было. Закуска тоже была, иногда. Друзья говорят «нормально посидели». Егор так и не доехал, и его сидр выдохся.'; }
-        else if (total < 34) { title = 'Душа компании'; text = 'Стаканы полные, тарелки тоже. Разговор про рабицу не утихает. Егор всё ещё в электричке.'; }
-        else { title = 'Хозяин 54-го километра'; text = 'Легенда васкеловских лабазов. Ни одного пустого стакана! А сидр таки дождался Егора.'; }
+        if (total < 18) { title = 'Хозяин-стажёр'; text = 'Пиво было. Закуска тоже была, иногда. Друзья говорят «нормально посидели». Егор так и не доехал, и его сидр выдохся.'; }
+        else if (total < 28) { title = 'Душа компании'; text = 'Стаканы полные, тарелки тоже. Разговор про рабицу не утихает. Егор всё ещё в электричке.'; }
+        else { title = 'Хозяин 54-го километра'; text = 'Ни одного пустого стакана! Егор приехал в 12 ночи, сидр его дождался. Через 20 минут Егор уснул.'; }
       }
+      $('resPic').style.display = (win && total >= 28) ? 'block' : 'none';
       $('resTitle').textContent = title; $('resText').textContent = text;
       $('sDrinks').textContent = st.drinks; $('sFood').textContent = st.food; $('sTalk').textContent = st.talk;
       setTimeout(() => $('over').classList.add('on'), 400);
